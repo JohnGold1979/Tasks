@@ -1,6 +1,4 @@
-﻿using System;
-
-namespace TaskManager.Domain
+﻿namespace TaskManager.Domain
 {
     public enum TaskStatusEnum { New, InProgress, Done }
     public enum TaskPriorityEnum { Low, Medium, High }

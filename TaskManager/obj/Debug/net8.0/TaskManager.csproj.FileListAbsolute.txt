@@ -139,3 +139,4 @@ D:\DOWNLOADS\C#\PROJECTS-C#\TaskManager\TaskManager\obj\Debug\net8.0\refint\Task
 D:\DOWNLOADS\C#\PROJECTS-C#\TaskManager\TaskManager\obj\Debug\net8.0\TaskManager.pdb
 D:\DOWNLOADS\C#\PROJECTS-C#\TaskManager\TaskManager\obj\Debug\net8.0\TaskManager.genruntimeconfig.cache
 D:\DOWNLOADS\C#\PROJECTS-C#\TaskManager\TaskManager\obj\Debug\net8.0\ref\TaskManager.dll
+D:\DOWNLOADS\C#\PROJECTS-C#\TaskManager\TaskManager\obj\Debug\net8.0\TaskManager.sourcelink.json

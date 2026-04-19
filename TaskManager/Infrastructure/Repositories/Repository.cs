@@ -1,7 +1,5 @@
 ﻿using Microsoft.EntityFrameworkCore;
 using TaskManager.Infrastructure.Data;
-using System.Linq;
-using System.Threading.Tasks;
 
 namespace TaskManager.Infrastructure.Repositories
 {

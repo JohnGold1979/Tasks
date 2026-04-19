@@ -1,6 +1,4 @@
-﻿using System.Collections.Generic;
-
-namespace TaskManager.Domain
+﻿namespace TaskManager.Domain
 {
     public class Department
     {

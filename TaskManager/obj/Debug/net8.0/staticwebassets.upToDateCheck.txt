@@ -1,2 +1,1 @@
-wwwroot\htmlpage.html
 wwwroot\index.html
