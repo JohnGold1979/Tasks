@@ -115,6 +115,11 @@
         .task-actions {
             margin-top: 10px;
         }
+
+        select {
+            background: white;
+            cursor: pointer;
+        }
     </style>
 </head>
 <body>
@@ -159,13 +164,15 @@
                 <button onclick="loadTasks()">Apply Filters</button>
             </div>
 
-            <!-- Create Task (visible for Chief and Employee) -->
+            <!-- Create Task -->
             <div id="createTaskSection" class="create-task hidden">
                 <h3>Create New Task</h3>
                 <input type="text" id="taskTitle" placeholder="Task Title"><br>
                 <textarea id="taskDesc" rows="3" placeholder="Description"></textarea><br>
-                <select id="assigneeId"></select><br>
-                <select id="priority">
+                <select id="assigneeId">
+                    <option value="">Select user</option>
+                </select><br>
+                <select id="priority">                   
                     <option value="Low">Low</option>
                     <option value="Medium" selected>Medium</option>
                     <option value="High">High</option>
@@ -215,7 +222,7 @@
                     }
 
                     await loadTasks();
-                    await loadUsers();
+                    await loadUsers(); // Загружаем пользователей для выпадающего списка
                 } else {
                     const error = await response.text();
                     showError('Login failed: ' + error);
@@ -296,6 +303,46 @@
             });
         }
 
+        async function loadUsers() {
+            if (!token) return;
+            
+            if (currentUser?.role !== 'Chief' && currentUser?.role !== 'Employee') {
+                return;
+            }
+
+            try {
+                console.log('Loading users...');
+                const response = await fetch('/api/Users', {
+                    headers: { 'Authorization': `Bearer ${token}` }
+                });
+
+                if (response.ok) {
+                    const users = await response.json();
+                    console.log('Users loaded:', users);
+
+                    const select = document.getElementById('assigneeId');
+                    if (select) {
+                        select.innerHTML = '<option value="">Select user</option>';
+                        users.forEach(user => {
+                            select.innerHTML += `<option value="${user.id}">${user.username} (ID: ${user.id})</option>`;
+                        });
+                    }
+                } else {
+                    console.error('Failed to load users:', response.status);
+                    const select = document.getElementById('assigneeId');
+                    if (select) {
+                        select.innerHTML = '<option value="">Error loading users</option>';
+                    }
+                }
+            } catch (error) {
+                console.error('Error loading users:', error);
+                const select = document.getElementById('assigneeId');
+                if (select) {
+                    select.innerHTML = '<option value="">Error loading users</option>';
+                }
+            }
+        }
+
         async function changeStatus(taskId, status) {
             try {
                 const response = await fetch(`/api/Tasks/${taskId}/status`, {
@@ -360,37 +407,30 @@
             }
         }
 
-        async function loadUsers() {
-            if (!currentUser || currentUser.role !== 'Chief') return;
-
-            try {
-                const response = await fetch('/api/Users', {
-                    headers: { 'Authorization': `Bearer ${token}` }
-                });
-
-                if (response.ok) {
-                    const users = await response.json();
-                    const select = document.getElementById('assigneeId');
-                    select.innerHTML = '<option value="">Select user</option>';
-                    users.forEach(user => {
-                        select.innerHTML += `<option value="${user.id}">${user.username}</option>`;
-                    });
-                }
-            } catch (error) {
-                console.error('Failed to load users:', error);
-            }
-        }
-
         async function createTask() {
             const title = document.getElementById('taskTitle').value;
             const description = document.getElementById('taskDesc').value;
             const assignedToId = document.getElementById('assigneeId').value;
             const priority = document.getElementById('priority').value;
 
-            if (!title || !assignedToId) {
-                showError('Please fill title and select assignee');
+            if (!title || title.trim() === '') {
+                showError('Please enter task title');
                 return;
             }
+
+            if (!assignedToId || assignedToId === '') {
+                showError('Please select an assignee');
+                return;
+            }
+           
+            const taskData = {
+                title: title.trim(),
+                description: description || '',
+                assignedToId: parseInt(assignedToId),
+                priority: priority
+            };
+
+            console.log('Sending task data:', taskData);
 
             try {
                 const response = await fetch('/api/Tasks', {
@@ -399,24 +439,30 @@
                         'Content-Type': 'application/json',
                         'Authorization': `Bearer ${token}`
                     },
-                    body: JSON.stringify({
-                        title,
-                        description,
-                        assignedToId: parseInt(assignedToId),
-                        priority
-                    })
+                    body: JSON.stringify(taskData)
                 });
 
+                console.log('Response status:', response.status);
+
                 if (response.ok) {
+                    const newTask = await response.json();
+                    console.log('Task created:', newTask);
+
+                    // Очищаем форму
                     document.getElementById('taskTitle').value = '';
                     document.getElementById('taskDesc').value = '';
+                    document.getElementById('assigneeId').value = '';
+                    document.getElementById('priority').value = 'Medium';
+
                     await loadTasks();
-                    showSuccess('Task created successfully');
+                    showSuccess('Task created successfully!');
                 } else {
                     const error = await response.text();
+                    console.error('Error response:', error);
                     showError('Failed to create task: ' + error);
                 }
             } catch (error) {
+                console.error('Error creating task:', error);
                 showError('Error: ' + error.message);
             }
         }
@@ -468,7 +514,7 @@
             return div.innerHTML;
         }
 
-        // Check for existing session
+        // Check for existing session on page load
         const savedToken = localStorage.getItem('token');
         const savedUser = localStorage.getItem('user');
         if (savedToken && savedUser) {
@@ -484,9 +530,10 @@
                 document.getElementById('createTaskSection').classList.remove('hidden');
             }
             loadTasks();
-            if (currentUser.role === 'Chief') {
-                loadUsers();
-            }
-        }</script>
+            loadUsers();
+        }
+               
+        console.log('Page loaded');
+        console.log('Token exists:', !!localStorage.getItem('token'));</script>
 </body>
 </html>

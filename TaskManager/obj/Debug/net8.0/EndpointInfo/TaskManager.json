@@ -36,6 +36,41 @@
         }
       }
     },
+    "/api/Departments": {
+      "get": {
+        "tags": [
+          "Departments"
+        ],
+        "responses": {
+          "200": {
+            "description": "Success"
+          }
+        }
+      }
+    },
+    "/api/Departments/{id}": {
+      "get": {
+        "tags": [
+          "Departments"
+        ],
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "integer",
+              "format": "int32"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Success"
+          }
+        }
+      }
+    },
     "/api/Tasks": {
       "get": {
         "tags": [
@@ -270,6 +305,64 @@
           }
         }
       }
+    },
+    "/api/Users": {
+      "get": {
+        "tags": [
+          "Users"
+        ],
+        "responses": {
+          "200": {
+            "description": "Success"
+          }
+        }
+      }
+    },
+    "/api/Users/{id}": {
+      "get": {
+        "tags": [
+          "Users"
+        ],
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "integer",
+              "format": "int32"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Success"
+          }
+        }
+      }
+    },
+    "/api/Users/by-department/{departmentId}": {
+      "get": {
+        "tags": [
+          "Users"
+        ],
+        "parameters": [
+          {
+            "name": "departmentId",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "integer",
+              "format": "int32"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Success"
+          }
+        }
+      }
     }
   },
   "components": {
@@ -321,21 +414,19 @@
       },
       "TaskPriorityEnum": {
         "enum": [
-          0,
-          1,
-          2
+          "Low",
+          "Medium",
+          "High"
         ],
-        "type": "integer",
-        "format": "int32"
+        "type": "string"
       },
       "TaskStatusEnum": {
         "enum": [
-          0,
-          1,
-          2
+          "New",
+          "InProgress",
+          "Done"
         ],
-        "type": "integer",
-        "format": "int32"
+        "type": "string"
       },
       "UpdatePriorityDto": {
         "type": "object",

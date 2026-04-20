@@ -74,13 +74,39 @@ namespace TaskManager.Controllers
         [HttpPost]
         [Authorize(Policy = "TaskCreate")]
         public async Task<IActionResult> CreateTask([FromBody] CreateTaskDto dto)
-        {
-            var userId = int.Parse(User.FindFirst(ClaimTypes.NameIdentifier)!.Value);
+        {           
+            if (!ModelState.IsValid)
+            {
+                return BadRequest(ModelState);
+            }
+            
+            var userIdClaim = User.FindFirst(ClaimTypes.NameIdentifier);
+            if (userIdClaim == null)
+            {
+                return Unauthorized("User ID not found in token");
+            }
+
+            var userId = int.Parse(userIdClaim.Value);
 
             try
             {
                 var task = await _taskService.CreateTaskAsync(userId, dto);
-                return CreatedAtAction(nameof(GetTaskById), new { id = task.Id }, task);
+                
+                var result = new TaskResponseDto
+                {
+                    Id = task.Id,
+                    Title = task.Title,
+                    Description = task.Description,
+                    Status = task.Status.ToString(),
+                    Priority = task.Priority.ToString(),
+                    CreatedByUsername = task.CreatedBy?.Username ?? string.Empty,
+                    AssignedToUsername = task.AssignedTo?.Username ?? string.Empty,
+                    DepartmentId = task.DepartmentId,
+                    DepartmentName = task.Department?.Name ?? string.Empty,
+                    CreatedAt = task.CreatedAt
+                };
+
+                return CreatedAtAction(nameof(GetTaskById), new { id = task.Id }, result);
             }
             catch (UnauthorizedAccessException ex)
             {
